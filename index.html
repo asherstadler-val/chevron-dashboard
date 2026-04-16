@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Nadia at Chevron Mock</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#F5F6FA;color:#1A2744;display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:220px;min-height:100vh;flex-shrink:0;
+  background:linear-gradient(165deg,#8B42D4 0%,#6228BB 40%,#3D178A 100%);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:200;
+}
+.sb-brand{padding:28px 22px 18px;border-bottom:1px solid rgba(255,255,255,0.12)}
+.sb-title{font-size:17px;font-weight:800;color:#fff;line-height:1.2;letter-spacing:-0.2px}
+.sb-sub{font-size:11.5px;color:rgba(255,255,255,0.55);margin-top:5px;font-weight:400}
+.sb-nav{padding:18px 12px;flex:1;display:flex;flex-direction:column;gap:1px}
+.sb-section{font-size:10px;font-weight:700;color:rgba(255,255,255,0.38);
+  text-transform:uppercase;letter-spacing:1px;padding:12px 10px 6px}
+.sb-item{
+  display:block;width:100%;text-align:left;border:none;background:none;
+  padding:9px 12px;border-radius:8px;
+  font-size:13.5px;font-weight:500;color:rgba(255,255,255,0.65);
+  cursor:pointer;transition:all .15s;
+}
+.sb-item:hover{background:rgba(255,255,255,0.1);color:#fff}
+.sb-item.active{background:#fff;color:#4A1AA0;font-weight:700}
+.sb-footer{padding:16px 22px;border-top:1px solid rgba(255,255,255,0.1)}
+.sb-foot-txt{font-size:11px;color:rgba(255,255,255,0.28)}
+
+/* ── MAIN ── */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:#fff;border-bottom:1px solid #E8ECF4;
+  padding:0 36px;height:58px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.topbar-left h2{font-size:14px;font-weight:600;color:#1A2744}
+.topbar-right{font-size:12px;color:#9AA4B5;display:flex;align-items:center;gap:14px}
+.topbar-chip{background:#F0EAFF;color:#6228BB;font-size:11px;font-weight:600;
+  padding:3px 10px;border-radius:20px;border:1px solid #DDD0FF}
+
+/* ── CONTENT ── */
+.content{padding:30px 36px 60px}
+.page{display:none}.page.active{display:block}
+
+/* ── PAGE TITLE AREA ── */
+.pg-head{margin-bottom:20px}
+.pg-head h1{font-size:22px;font-weight:700;color:#0D1F3C;margin-bottom:4px}
+.pg-head-link{font-size:13px;font-weight:600;color:#6228BB;margin-bottom:8px;display:block}
+.pg-head-date{font-size:12px;color:#9AA4B5}
+
+/* ── FILTER STRIP ── */
+.filter-strip{
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  margin-bottom:22px;
+}
+.f-group{display:flex;align-items:center;gap:8px}
+.f-lbl{font-size:12.5px;font-weight:700;color:#1A2744;white-space:nowrap}
+.f-select{
+  padding:6px 28px 6px 10px;border:1.5px solid #D8DCE8;border-radius:7px;
+  font-size:12.5px;font-family:inherit;color:#1A2744;background:#fff;
+  outline:none;cursor:pointer;min-width:140px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238A96A8' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;appearance:none;
+}
+.f-select:focus{border-color:#6228BB}
+.pill-row{display:flex;gap:4px}
+.pill{
+  padding:5px 14px;border-radius:20px;border:1.5px solid #D8DCE8;
+  background:#fff;color:#5A6479;font-size:12px;font-weight:500;
+  cursor:pointer;transition:all .13s;white-space:nowrap;
+}
+.pill:hover{border-color:#6228BB;color:#6228BB}
+.pill.active{background:#6228BB;border-color:#6228BB;color:#fff;font-weight:600}
+.f-divider{width:1px;height:20px;background:#D8DCE8}
+
+/* ── KPI TILES ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:1200px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+.kpi-tile{
+  border-radius:12px;padding:20px 18px 16px;color:#fff;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#8B42D4 0%,#5228B5 100%);
+}
+.kpi-tile:nth-child(2){background:linear-gradient(135deg,#7038C8 0%,#4A20A8 100%)}
+.kpi-tile:nth-child(3){background:linear-gradient(135deg,#5E2EBC 0%,#3D18A0 100%)}
+.kpi-tile:nth-child(4){background:linear-gradient(135deg,#4A24AC 0%,#3015A0 100%)}
+.kpi-tile:nth-child(5){background:linear-gradient(135deg,#3A20A8 0%,#251598 100%)}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;
+  color:rgba(255,255,255,0.72);margin-bottom:8px}
+.kpi-val{font-size:32px;font-weight:800;line-height:1;margin-bottom:5px}
+.kpi-desc{font-size:11px;color:rgba(255,255,255,0.6)}
+
+/* ── CHART CARD ── */
+.card{background:#fff;border:1px solid #E8ECF4;border-radius:12px;padding:24px;margin-bottom:20px}
+.card-title{font-size:14px;font-weight:700;color:#0D1F3C;margin-bottom:3px}
+.card-sub{font-size:12px;color:#9AA4B5;margin-bottom:18px}
+.chart-h-sm{position:relative;height:200px}
+.chart-h-md{position:relative;height:280px}
+.chart-h-lg{position:relative;height:340px}
+
+/* ── KEY TAKEAWAYS ── */
+.takeaways{
+  background:#fff;border:1px solid #E8ECF4;border-radius:12px;
+  border-left:4px solid #6228BB;padding:20px 24px;margin-bottom:20px
+}
+.takeaways-title{font-size:14px;font-weight:700;color:#0D1F3C;margin-bottom:12px}
+.takeaway-item{
+  font-size:13px;color:#3A4660;line-height:1.65;
+  padding:4px 0 4px 16px;position:relative;
+}
+.takeaway-item::before{content:'';position:absolute;left:0;top:12px;
+  width:5px;height:5px;border-radius:50%;background:#6228BB}
+
+/* ── GRID ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:900px){.grid-3{grid-template-columns:1fr}}
+
+/* ── SECTION TITLE ── */
+.sec-title{font-size:15px;font-weight:700;color:#0D1F3C;margin-bottom:3px}
+.sec-sub{font-size:12px;color:#9AA4B5;margin-bottom:14px}
+.divider{height:1px;background:#E8ECF4;margin:24px 0}
+
+/* ── TABLE ── */
+.tbl-card{background:#fff;border:1px solid #E8ECF4;border-radius:12px;padding:22px 24px;margin-bottom:20px}
+.tbl-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{
+  background:#F7F8FC;color:#8A96A8;font-size:10.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.5px;
+  padding:9px 14px;text-align:left;border-bottom:1.5px solid #E8ECF4;
+  white-space:nowrap;cursor:pointer;user-select:none;
+}
+thead th:hover{color:#6228BB}
+thead th.sort-asc::after{content:' ↑'}
+thead th.sort-desc::after{content:' ↓'}
+tbody tr{border-bottom:1px solid #F2F4FA;transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#F8F6FF}
+tbody td{padding:9px 14px;color:#1A2744}
+.pct-bar-wrap{display:flex;align-items:center;gap:8px}
+.pct-bar{height:6px;border-radius:3px;background:#E8ECF4;flex:0 0 80px}
+.pct-fill{height:100%;border-radius:3px;background:#6228BB}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;
+  border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.b-upstream  {background:#EBF4FF;color:#0060C7}
+.b-downstream{background:#E8F5EE;color:#007A4C}
+.b-corporate {background:#F2EDFA;color:#6228BB}
+.b-champion  {background:#E6F7EF;color:#007A4C}
+.b-power     {background:#FFF3E0;color:#A05800}
+.b-broad     {background:#EBF4FF;color:#0060C7}
+.b-needs     {background:#FEECEE;color:#B92232}
+
+/* ── MATRIX ── */
+.matrix-card{background:#fff;border:1px solid #E8ECF4;border-radius:12px;padding:24px;margin-bottom:20px}
+.matrix-sub{font-size:12px;color:#9AA4B5;margin-bottom:16px}
+.quadrant-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+@media(max-width:800px){.quadrant-row{grid-template-columns:1fr}}
+.quad-box{border-radius:10px;padding:14px 16px}
+.quad-box.champion  {background:#EBF9F3;border:1px solid #A8E0C4}
+.quad-box.power     {background:#FFF8EC;border:1px solid #FFDB99}
+.quad-box.broad     {background:#EBF4FF;border:1px solid #ADD0FF}
+.quad-box.needs     {background:#FEF0F2;border:1px solid #FFBEC6}
+.quad-head{font-size:12.5px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.quad-head.champion  {color:#007A4C}
+.quad-head.power     {color:#A05800}
+.quad-head.broad     {color:#0060C7}
+.quad-head.needs     {color:#B92232}
+.quad-body{font-size:12px;color:#3A4660;margin-bottom:6px}
+.quad-tip{font-size:11px;font-style:italic;color:#6A7890}
+
+/* ── SKILLS OVERVIEW BAR ── */
+.skill-dist-row{display:flex;flex-direction:column;gap:10px;padding:4px 0}
+.skill-bar-item{display:flex;align-items:center;gap:12px}
+.skill-lbl{font-size:12.5px;font-weight:500;color:#1A2744;width:180px;flex-shrink:0}
+.skill-bar-outer{flex:1;height:12px;background:#F0EAF9;border-radius:6px;overflow:hidden}
+.skill-bar-inner{height:100%;border-radius:6px;background:linear-gradient(90deg,#8B42D4,#5228B5)}
+.skill-pct{font-size:12px;color:#6228BB;font-weight:600;width:40px;flex-shrink:0}
+.skill-count{font-size:11px;color:#9AA4B5;width:70px;flex-shrink:0;text-align:right}
+
+/* ── SKILLS TABLE ── */
+.skills-tbl th.topic-col{color:#6228BB!important;border-bottom-color:#DDD0FF!important}
+tbody td.topic-val{text-align:center;font-size:12px}
+tbody td.topic-val .tc{font-weight:700;color:#1A2744}
+tbody td.topic-val .tp{color:#9AA4B5;font-size:10.5px}
+</style>
+</head>
+<body>
+<!-- ── PASSWORD GATE ── -->
+<div id="pw-gate" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(165deg,#8B42D4 0%,#6228BB 40%,#3D178A 100%);display:flex;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:40px 44px;width:340px;box-shadow:0 24px 60px rgba(0,0,0,0.25);text-align:center">
+    <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#8B42D4,#6228BB);margin:0 auto 20px;display:flex;align-items:center;justify-content:center">
+      <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h2 style="font-size:18px;font-weight:700;color:#1A2744;margin-bottom:6px">Protected Dashboard</h2>
+    <p style="font-size:13px;color:#9AA4B5;margin-bottom:24px">Enter the password to continue</p>
+    <input id="pw-input" type="password" placeholder="Password" autocomplete="current-password"
+      style="width:100%;padding:11px 14px;border:1.5px solid #E0E6F0;border-radius:8px;font-size:14px;font-family:inherit;color:#1A2744;outline:none;margin-bottom:10px;transition:border .15s"
+      onfocus="this.style.borderColor='#6228BB'" onblur="this.style.borderColor='#E0E6F0'"
+      onkeydown="if(event.key==='Enter')checkPw()"/>
+    <div id="pw-error" style="font-size:12px;color:#E53E3E;margin-bottom:8px;min-height:18px"></div>
+    <button onclick="checkPw()"
+      style="width:100%;padding:12px;background:linear-gradient(135deg,#8B42D4,#6228BB);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;letter-spacing:0.2px">
+      Unlock
+    </button>
+  </div>
+</div>
+<script>
+(function(){
+  // SHA-256 hash of "insights"
+  const HASH = '7f1fe30ef252bf75fab0c9680c7bcfff648154165afe718155091051255a0a99';
+  async function sha256(str){
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+  async function checkPw(){
+    const val = document.getElementById('pw-input').value;
+    const hash = await sha256(val);
+    if(hash === HASH){
+      sessionStorage.setItem('pgAuth','1');
+      document.getElementById('pw-gate').style.display='none';
+    } else {
+      const err = document.getElementById('pw-error');
+      err.textContent = 'Incorrect password. Please try again.';
+      document.getElementById('pw-input').value='';
+      document.getElementById('pw-input').focus();
+    }
+  }
+  window.checkPw = checkPw;
+  if(sessionStorage.getItem('pgAuth') !== '1'){
+    document.getElementById('pw-gate').style.display='flex';
+  }
+})();
+</script>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-title">Nadia at Chevron Mock</div>
+    <div class="sb-sub">AI Coaching Analytics — April 2026</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Engagement</div>
+    <button class="sb-item active" id="nav-overview" onclick="showPage('overview',this)">Engagement Overview</button>
+    <div class="sb-section">Adoption</div>
+    <button class="sb-item" id="nav-bu" onclick="showPage('bu',this)">BU Analysis</button>
+    <button class="sb-item" id="nav-skills" onclick="showPage('skills',this)">Skills Analysis</button>
+  </nav>
+  <div class="sb-footer">
+    <div class="sb-foot-txt">Data as of Apr 16, 2026</div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+<div class="topbar">
+  <div class="topbar-left"><h2 id="topbar-title">Engagement Overview</h2></div>
+  <div class="topbar-right">
+    <span>April 16, 2026</span>
+    <span class="topbar-chip">Chevron Mock</span>
+  </div>
+</div>
+<div class="content">
+
+<!-- ══════════ PAGE: OVERVIEW ══════════ -->
+<div class="page active" id="page-overview">
+  <div class="pg-head">
+    <h1>Nadia at Chevron Mock: AI coaching adoption overview</h1>
+    <span class="pg-head-link">Engagement Overview</span>
+    <span class="pg-head-date">Data as of April 16, 2026</span>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-strip">
+    <div class="f-group">
+      <span class="f-lbl">Business Unit:</span>
+      <select class="f-select" id="ov-bu-filter" onchange="updateOverview()">
+        <option value="All">All</option>
+      </select>
+    </div>
+    <div class="f-divider"></div>
+    <div class="f-group">
+      <span class="f-lbl">Role:</span>
+      <div class="pill-row" id="ov-role-pills">
+        <button class="pill active" onclick="setOvRole('Both',this)">All</button>
+        <button class="pill" onclick="setOvRole('Manager',this)">Managers</button>
+        <button class="pill" onclick="setOvRole('IC',this)">ICs</button>
+      </div>
+    </div>
+    <div class="f-divider"></div>
+    <div class="f-group">
+      <span class="f-lbl">User Status:</span>
+      <div class="pill-row" id="ov-status-pills">
+        <button class="pill active" onclick="setOvStatus('All',this)">All</button>
+        <button class="pill" onclick="setOvStatus('Active',this)">Active</button>
+        <button class="pill" onclick="setOvStatus('Return',this)">Return</button>
+        <button class="pill" onclick="setOvStatus('Recent',this)">Recently Active</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Tiles -->
+  <div class="kpi-row">
+    <div class="kpi-tile">
+      <div class="kpi-label">Total Registered</div>
+      <div class="kpi-val" id="kpi-reg">—</div>
+      <div class="kpi-desc" id="kpi-reg-sub">— of population</div>
+    </div>
+    <div class="kpi-tile">
+      <div class="kpi-label">Active Nadia Users</div>
+      <div class="kpi-val" id="kpi-active">—</div>
+      <div class="kpi-desc" id="kpi-active-sub">— of population</div>
+    </div>
+    <div class="kpi-tile">
+      <div class="kpi-label">Total Coaching Conversations</div>
+      <div class="kpi-val" id="kpi-convos">—</div>
+      <div class="kpi-desc">Cumulative sessions</div>
+    </div>
+    <div class="kpi-tile">
+      <div class="kpi-label">Return Users</div>
+      <div class="kpi-val" id="kpi-return">—</div>
+      <div class="kpi-desc" id="kpi-return-sub">— return rate</div>
+    </div>
+    <div class="kpi-tile">
+      <div class="kpi-label">Recently Active (90 days)</div>
+      <div class="kpi-val" id="kpi-recent">—</div>
+      <div class="kpi-desc" id="kpi-recent-sub">— of active users</div>
+    </div>
+  </div>
+
+  <!-- Monthly Chart -->
+  <div class="card">
+    <div class="card-title">Monthly Active Users and New Registrations</div>
+    <div class="card-sub">New active users, returning active users, and new registrations per month</div>
+    <div class="chart-h-lg"><canvas id="monthly-chart"></canvas></div>
+  </div>
+
+  <!-- Key Takeaways -->
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways</div>
+    <div id="takeaways-list"></div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: BU ANALYSIS ══════════ -->
+<div class="page" id="page-bu">
+  <div class="pg-head">
+    <h1>BU Analysis</h1>
+    <span class="pg-head-link">Business Unit Adoption</span>
+    <span class="pg-head-date">Adoption breakdown across Chevron Mock business units</span>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-strip">
+    <div class="f-group">
+      <span class="f-lbl">Role:</span>
+      <div class="pill-row" id="bu-role-pills">
+        <button class="pill active" onclick="setBuRole('Both',this)">All</button>
+        <button class="pill" onclick="setBuRole('Manager',this)">Managers</button>
+        <button class="pill" onclick="setBuRole('IC',this)">ICs</button>
+      </div>
+    </div>
+    <div class="f-divider"></div>
+    <div class="f-group">
+      <span class="f-lbl">User Status:</span>
+      <div class="pill-row" id="bu-status-pills">
+        <button class="pill active" onclick="setBuStatus('All',this)">All</button>
+        <button class="pill" onclick="setBuStatus('Active',this)">Active Only</button>
+        <button class="pill" onclick="setBuStatus('Return',this)">Return Users</button>
+        <button class="pill" onclick="setBuStatus('Recent',this)">Recently Active</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BU Table -->
+  <div class="tbl-card">
+    <div class="card-title" style="margin-bottom:14px">Business Unit Adoption Table</div>
+    <div class="tbl-wrap">
+      <table id="bu-table">
+        <thead>
+          <tr>
+            <th onclick="sortBuTable('bu')">Business Unit</th>
+            <th onclick="sortBuTable('org')">Organization</th>
+            <th onclick="sortBuTable('total_pop')">Total Population</th>
+            <th onclick="sortBuTable('registered')">Registered</th>
+            <th onclick="sortBuTable('active')">Active Users</th>
+            <th onclick="sortBuTable('adoption_rate')">Adoption Rate</th>
+            <th onclick="sortBuTable('avg_convos')">Avg Conversations</th>
+            <th onclick="sortBuTable('return_rate')">Return Rate</th>
+            <th onclick="sortBuTable('recently_active_pct')">Recently Active</th>
+          </tr>
+        </thead>
+        <tbody id="bu-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Adoption Matrix -->
+  <div class="matrix-card">
+    <div class="card-title">BU Adoption Matrix</div>
+    <div class="matrix-sub" id="matrix-sub-text"></div>
+    <div class="chart-h-lg"><canvas id="matrix-chart"></canvas></div>
+    <div class="quadrant-row" id="quadrant-boxes"></div>
+  </div>
+</div>
+
+<!-- ══════════ PAGE: SKILLS ANALYSIS ══════════ -->
+<div class="page" id="page-skills">
+  <div class="pg-head">
+    <h1>Skills Analysis</h1>
+    <span class="pg-head-link">Coaching Topic Distribution</span>
+    <span class="pg-head-date">Topic breakdown across coaching conversations</span>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-strip">
+    <div class="f-group">
+      <span class="f-lbl">Role:</span>
+      <div class="pill-row" id="sk-role-pills">
+        <button class="pill active" onclick="setSkRole('Both',this)">All</button>
+        <button class="pill" onclick="setSkRole('Manager',this)">Managers</button>
+        <button class="pill" onclick="setSkRole('IC',this)">ICs</button>
+      </div>
+    </div>
+    <div class="f-divider"></div>
+    <div class="f-group">
+      <span class="f-lbl">User Status:</span>
+      <div class="pill-row" id="sk-status-pills">
+        <button class="pill active" onclick="setSkStatus('All',this)">All</button>
+        <button class="pill" onclick="setSkStatus('Active',this)">Active Only</button>
+        <button class="pill" onclick="setSkStatus('Return',this)">Return Users</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overall Distribution -->
+  <div class="card">
+    <div class="card-title">Overall Skills Distribution</div>
+    <div class="card-sub">Share of total coaching conversations by topic</div>
+    <div id="skills-dist-bars"></div>
+  </div>
+
+  <!-- Skills by BU Table -->
+  <div class="tbl-card">
+    <div class="card-title" style="margin-bottom:4px">Skills by Business Unit</div>
+    <div class="card-sub" style="margin-bottom:14px">% of conversations (and total count) per topic per BU</div>
+    <div class="tbl-wrap">
+      <table id="skills-table">
+        <thead>
+          <tr>
+            <th>Business Unit</th>
+            <th>Org</th>
+            <th class="topic-col">Performance</th>
+            <th class="topic-col">Goal Setting</th>
+            <th class="topic-col">Difficult Conversations</th>
+            <th class="topic-col">Managing Up</th>
+            <th class="topic-col">Personal Issues</th>
+            <th>Total Convos</th>
+          </tr>
+        </thead>
+        <tbody id="skills-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Skills chart by role -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Skills Distribution — Managers</div>
+      <div class="card-sub">Coaching topic mix for leadership users</div>
+      <div class="chart-h-md"><canvas id="skills-mgr-chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Skills Distribution — Individual Contributors</div>
+      <div class="card-sub">Coaching topic mix for IC users</div>
+      <div class="chart-h-md"><canvas id="skills-ic-chart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ══════════ SCRIPT ══════════ -->
+<script>
+/* ── EMBEDDED DATA ── */
+const D = {"kpis":{"Both":{"total_active":6643,"total_registered":8376,"total_convos":60689,"return_users":4760,"recently_active":3995,"active_pct_pop":44.0,"reg_pct_pop":55.5,"return_rate":71.7,"recent_pct_active":60.1},"Manager":{"total_active":4640,"total_registered":5649,"total_convos":43803,"return_users":3354,"recently_active":2820,"active_pct_pop":30.7,"reg_pct_pop":37.4,"return_rate":72.3,"recent_pct_active":60.8},"IC":{"total_active":2003,"total_registered":2727,"total_convos":16886,"return_users":1406,"recently_active":1175,"active_pct_pop":13.3,"reg_pct_pop":18.1,"return_rate":70.2,"recent_pct_active":58.7}},"monthly":{"Both":[{"month":"2024-07","new_active":2,"returning_active":0,"new_registrations":2},{"month":"2024-09","new_active":2,"returning_active":0,"new_registrations":2},{"month":"2024-10","new_active":1,"returning_active":0,"new_registrations":1},{"month":"2024-11","new_active":10,"returning_active":0,"new_registrations":12},{"month":"2024-12","new_active":266,"returning_active":0,"new_registrations":340},{"month":"2025-01","new_active":99,"returning_active":3,"new_registrations":126},{"month":"2025-02","new_active":312,"returning_active":101,"new_registrations":399},{"month":"2025-03","new_active":137,"returning_active":64,"new_registrations":175},{"month":"2025-04","new_active":96,"returning_active":29,"new_registrations":122},{"month":"2025-05","new_active":183,"returning_active":42,"new_registrations":234},{"month":"2025-06","new_active":793,"returning_active":166,"new_registrations":1014},{"month":"2025-07","new_active":1277,"returning_active":811,"new_registrations":1634},{"month":"2025-08","new_active":362,"returning_active":479,"new_registrations":463},{"month":"2025-09","new_active":234,"returning_active":642,"new_registrations":299},{"month":"2025-10","new_active":163,"returning_active":576,"new_registrations":208},{"month":"2025-11","new_active":250,"returning_active":748,"new_registrations":320},{"month":"2025-12","new_active":1076,"returning_active":2062,"new_registrations":1377},{"month":"2026-01","new_active":395,"returning_active":1463,"new_registrations":505},{"month":"2026-02","new_active":817,"returning_active":2324,"new_registrations":1045},{"month":"2026-03","new_active":199,"returning_active":1545,"new_registrations":254},{"month":"2026-04","new_active":60,"returning_active":1011,"new_registrations":76}],"Manager":[{"month":"2024-10","new_active":1,"returning_active":0,"new_registrations":1},{"month":"2024-11","new_active":6,"returning_active":0,"new_registrations":7},{"month":"2024-12","new_active":176,"returning_active":0,"new_registrations":225},{"month":"2025-01","new_active":72,"returning_active":2,"new_registrations":92},{"month":"2025-02","new_active":218,"returning_active":78,"new_registrations":278},{"month":"2025-03","new_active":88,"returning_active":50,"new_registrations":112},{"month":"2025-04","new_active":65,"returning_active":21,"new_registrations":83},{"month":"2025-05","new_active":133,"returning_active":30,"new_registrations":170},{"month":"2025-06","new_active":574,"returning_active":117,"new_registrations":734},{"month":"2025-07","new_active":925,"returning_active":621,"new_registrations":1184},{"month":"2025-08","new_active":244,"returning_active":349,"new_registrations":312},{"month":"2025-09","new_active":154,"returning_active":467,"new_registrations":197},{"month":"2025-10","new_active":108,"returning_active":430,"new_registrations":138},{"month":"2025-11","new_active":171,"returning_active":539,"new_registrations":218},{"month":"2025-12","new_active":787,"returning_active":1518,"new_registrations":1007},{"month":"2026-01","new_active":297,"returning_active":1085,"new_registrations":380},{"month":"2026-02","new_active":607,"returning_active":1734,"new_registrations":777},{"month":"2026-03","new_active":138,"returning_active":1138,"new_registrations":176},{"month":"2026-04","new_active":40,"returning_active":748,"new_registrations":51}],"IC":[{"month":"2024-07","new_active":2,"returning_active":0,"new_registrations":2},{"month":"2024-09","new_active":2,"returning_active":0,"new_registrations":2},{"month":"2024-11","new_active":4,"returning_active":0,"new_registrations":5},{"month":"2024-12","new_active":90,"returning_active":0,"new_registrations":115},{"month":"2025-01","new_active":27,"returning_active":1,"new_registrations":34},{"month":"2025-02","new_active":94,"returning_active":23,"new_registrations":120},{"month":"2025-03","new_active":49,"returning_active":14,"new_registrations":62},{"month":"2025-04","new_active":31,"returning_active":8,"new_registrations":39},{"month":"2025-05","new_active":50,"returning_active":12,"new_registrations":64},{"month":"2025-06","new_active":219,"returning_active":49,"new_registrations":280},{"month":"2025-07","new_active":352,"returning_active":190,"new_registrations":450},{"month":"2025-08","new_active":118,"returning_active":130,"new_registrations":151},{"month":"2025-09","new_active":80,"returning_active":175,"new_registrations":102},{"month":"2025-10","new_active":55,"returning_active":146,"new_registrations":70},{"month":"2025-11","new_active":79,"returning_active":209,"new_registrations":101},{"month":"2025-12","new_active":289,"returning_active":544,"new_registrations":370},{"month":"2026-01","new_active":98,"returning_active":378,"new_registrations":125},{"month":"2026-02","new_active":210,"returning_active":590,"new_registrations":268},{"month":"2026-03","new_active":61,"returning_active":407,"new_registrations":78},{"month":"2026-04","new_active":20,"returning_active":263,"new_registrations":25}]},"bu_table":{"Both":[{"bu":"Corporate Comms","org":"Corporate","total_pop":701,"registered":401,"active":306,"total_convos":3168,"adoption_rate":43.7,"avg_convos":10.4,"return_rate":73.2,"recently_active_pct":57.2},{"bu":"Corporate Finance","org":"Corporate","total_pop":1140,"registered":600,"active":495,"total_convos":4375,"adoption_rate":43.4,"avg_convos":8.8,"return_rate":70.7,"recently_active_pct":61.4},{"bu":"Corporate HR","org":"Corporate","total_pop":916,"registered":705,"active":553,"total_convos":3860,"adoption_rate":60.4,"avg_convos":7.0,"return_rate":70.3,"recently_active_pct":59.7},{"bu":"Corporate Legal","org":"Corporate","total_pop":1075,"registered":489,"active":398,"total_convos":4115,"adoption_rate":37.0,"avg_convos":10.3,"return_rate":72.9,"recently_active_pct":58.3},{"bu":"Corporate Strategy","org":"Corporate","total_pop":926,"registered":597,"active":479,"total_convos":4075,"adoption_rate":51.7,"avg_convos":8.5,"return_rate":70.1,"recently_active_pct":60.5},{"bu":"Downstream Commercial","org":"Downstream","total_pop":1235,"registered":819,"active":651,"total_convos":5657,"adoption_rate":52.7,"avg_convos":8.7,"return_rate":72.5,"recently_active_pct":60.2},{"bu":"Downstream Finance","org":"Downstream","total_pop":1247,"registered":416,"active":340,"total_convos":3696,"adoption_rate":27.3,"avg_convos":10.9,"return_rate":71.8,"recently_active_pct":59.4},{"bu":"Downstream IT","org":"Downstream","total_pop":1313,"registered":501,"active":406,"total_convos":4196,"adoption_rate":30.9,"avg_convos":10.3,"return_rate":71.4,"recently_active_pct":59.9},{"bu":"Downstream Operations","org":"Downstream","total_pop":1304,"registered":1043,"active":818,"total_convos":7090,"adoption_rate":62.7,"avg_convos":8.7,"return_rate":71.4,"recently_active_pct":61.7},{"bu":"Downstream Safety","org":"Downstream","total_pop":760,"registered":200,"active":155,"total_convos":1647,"adoption_rate":20.4,"avg_convos":10.6,"return_rate":72.9,"recently_active_pct":56.8},{"bu":"Upstream Engineering","org":"Upstream","total_pop":1366,"registered":781,"active":609,"total_convos":5285,"adoption_rate":44.6,"avg_convos":8.7,"return_rate":71.3,"recently_active_pct":60.8},{"bu":"Upstream Finance","org":"Upstream","total_pop":1183,"registered":408,"active":317,"total_convos":2802,"adoption_rate":26.8,"avg_convos":8.8,"return_rate":71.9,"recently_active_pct":59.6},{"bu":"Upstream HSE","org":"Upstream","total_pop":899,"registered":281,"active":226,"total_convos":2386,"adoption_rate":25.1,"avg_convos":10.6,"return_rate":72.1,"recently_active_pct":58.8},{"bu":"Upstream IT","org":"Upstream","total_pop":977,"registered":407,"active":328,"total_convos":3335,"adoption_rate":33.6,"avg_convos":10.2,"return_rate":70.4,"recently_active_pct":60.4},{"bu":"Upstream Operations","org":"Upstream","total_pop":1212,"registered":729,"active":562,"total_convos":5003,"adoption_rate":46.4,"avg_convos":8.9,"return_rate":72.1,"recently_active_pct":60.9}],"Manager":[{"bu":"Corporate Comms","org":"Corporate","total_pop":701,"registered":263,"active":206,"total_convos":2329,"adoption_rate":29.4,"avg_convos":11.3,"return_rate":74.8,"recently_active_pct":58.3},{"bu":"Corporate Finance","org":"Corporate","total_pop":1140,"registered":402,"active":341,"total_convos":3197,"adoption_rate":29.9,"avg_convos":9.4,"return_rate":71.8,"recently_active_pct":62.2},{"bu":"Corporate HR","org":"Corporate","total_pop":916,"registered":486,"active":385,"total_convos":2824,"adoption_rate":42.0,"avg_convos":7.3,"return_rate":70.9,"recently_active_pct":60.5},{"bu":"Corporate Legal","org":"Corporate","total_pop":1075,"registered":348,"active":284,"total_convos":3060,"adoption_rate":26.4,"avg_convos":10.8,"return_rate":73.2,"recently_active_pct":59.5},{"bu":"Corporate Strategy","org":"Corporate","total_pop":926,"registered":412,"active":336,"total_convos":2994,"adoption_rate":36.3,"avg_convos":8.9,"return_rate":70.8,"recently_active_pct":61.0},{"bu":"Downstream Commercial","org":"Downstream","total_pop":1235,"registered":556,"active":450,"total_convos":4074,"adoption_rate":36.4,"avg_convos":9.1,"return_rate":73.1,"recently_active_pct":60.9},{"bu":"Downstream Finance","org":"Downstream","total_pop":1247,"registered":292,"active":240,"total_convos":2742,"adoption_rate":19.2,"avg_convos":11.4,"return_rate":72.5,"recently_active_pct":59.6},{"bu":"Downstream IT","org":"Downstream","total_pop":1313,"registered":348,"active":283,"total_convos":3102,"adoption_rate":21.6,"avg_convos":11.0,"return_rate":72.4,"recently_active_pct":60.4},{"bu":"Downstream Operations","org":"Downstream","total_pop":1304,"registered":737,"active":584,"total_convos":5210,"adoption_rate":44.8,"avg_convos":8.9,"return_rate":72.1,"recently_active_pct":62.0},{"bu":"Downstream Safety","org":"Downstream","total_pop":760,"registered":146,"active":110,"total_convos":1226,"adoption_rate":14.5,"avg_convos":11.1,"return_rate":73.6,"recently_active_pct":57.3},{"bu":"Upstream Engineering","org":"Upstream","total_pop":1366,"registered":535,"active":422,"total_convos":3842,"adoption_rate":30.9,"avg_convos":9.1,"return_rate":72.3,"recently_active_pct":61.4},{"bu":"Upstream Finance","org":"Upstream","total_pop":1183,"registered":289,"active":228,"total_convos":2077,"adoption_rate":19.3,"avg_convos":9.1,"return_rate":72.4,"recently_active_pct":60.5},{"bu":"Upstream HSE","org":"Upstream","total_pop":899,"registered":204,"active":163,"total_convos":1789,"adoption_rate":18.1,"avg_convos":11.0,"return_rate":73.0,"recently_active_pct":59.5},{"bu":"Upstream IT","org":"Upstream","total_pop":977,"registered":285,"active":231,"total_convos":2467,"adoption_rate":23.6,"avg_convos":10.7,"return_rate":70.6,"recently_active_pct":61.5},{"bu":"Upstream Operations","org":"Upstream","total_pop":1212,"registered":507,"active":397,"total_convos":3641,"adoption_rate":32.8,"avg_convos":9.2,"return_rate":73.3,"recently_active_pct":61.5}],"IC":[{"bu":"Corporate Comms","org":"Corporate","total_pop":701,"registered":138,"active":100,"total_convos":839,"adoption_rate":14.3,"avg_convos":8.4,"return_rate":69.0,"recently_active_pct":54.0},{"bu":"Corporate Finance","org":"Corporate","total_pop":1140,"registered":198,"active":154,"total_convos":1178,"adoption_rate":13.5,"avg_convos":7.6,"return_rate":68.2,"recently_active_pct":59.7},{"bu":"Corporate HR","org":"Corporate","total_pop":916,"registered":219,"active":168,"total_convos":1036,"adoption_rate":18.3,"avg_convos":6.2,"return_rate":69.0,"recently_active_pct":58.3},{"bu":"Corporate Legal","org":"Corporate","total_pop":1075,"registered":141,"active":114,"total_convos":1055,"adoption_rate":10.6,"avg_convos":9.3,"return_rate":72.8,"recently_active_pct":55.3},{"bu":"Corporate Strategy","org":"Corporate","total_pop":926,"registered":185,"active":143,"total_convos":1081,"adoption_rate":15.5,"avg_convos":7.6,"return_rate":68.5,"recently_active_pct":59.4},{"bu":"Downstream Commercial","org":"Downstream","total_pop":1235,"registered":263,"active":201,"total_convos":1583,"adoption_rate":16.3,"avg_convos":7.9,"return_rate":70.6,"recently_active_pct":58.2},{"bu":"Downstream Finance","org":"Downstream","total_pop":1247,"registered":124,"active":100,"total_convos":954,"adoption_rate":8.0,"avg_convos":9.5,"return_rate":69.0,"recently_active_pct":59.0},{"bu":"Downstream IT","org":"Downstream","total_pop":1313,"registered":153,"active":123,"total_convos":1094,"adoption_rate":9.4,"avg_convos":8.9,"return_rate":68.3,"recently_active_pct":58.5},{"bu":"Downstream Operations","org":"Downstream","total_pop":1304,"registered":306,"active":234,"total_convos":1880,"adoption_rate":17.9,"avg_convos":8.0,"return_rate":69.2,"recently_active_pct":60.3},{"bu":"Downstream Safety","org":"Downstream","total_pop":760,"registered":54,"active":45,"total_convos":421,"adoption_rate":5.9,"avg_convos":9.4,"return_rate":71.1,"recently_active_pct":55.6},{"bu":"Upstream Engineering","org":"Upstream","total_pop":1366,"registered":246,"active":187,"total_convos":1443,"adoption_rate":13.7,"avg_convos":7.7,"return_rate":68.4,"recently_active_pct":59.4},{"bu":"Upstream Finance","org":"Upstream","total_pop":1183,"registered":119,"active":89,"total_convos":725,"adoption_rate":7.5,"avg_convos":8.1,"return_rate":70.8,"recently_active_pct":57.3},{"bu":"Upstream HSE","org":"Upstream","total_pop":899,"registered":77,"active":63,"total_convos":597,"adoption_rate":7.0,"avg_convos":9.5,"return_rate":69.8,"recently_active_pct":57.1},{"bu":"Upstream IT","org":"Upstream","total_pop":977,"registered":122,"active":97,"total_convos":868,"adoption_rate":9.9,"avg_convos":8.9,"return_rate":70.1,"recently_active_pct":58.2},{"bu":"Upstream Operations","org":"Upstream","total_pop":1212,"registered":222,"active":165,"total_convos":1362,"adoption_rate":13.6,"avg_convos":8.3,"return_rate":69.1,"recently_active_pct":59.4}]},"matrix":[{"bu":"Corporate Comms","org":"Corporate","total_pop":701,"registered":401,"active":306,"total_convos":3168,"adoption_rate":43.7,"avg_convos":10.4,"return_rate":73.2,"recently_active_pct":57.2,"quadrant":"Champions"},{"bu":"Corporate Finance","org":"Corporate","total_pop":1140,"registered":600,"active":495,"total_convos":4375,"adoption_rate":43.4,"avg_convos":8.8,"return_rate":70.7,"recently_active_pct":61.4,"quadrant":"Broad Adoption, Light Use"},{"bu":"Corporate HR","org":"Corporate","total_pop":916,"registered":705,"active":553,"total_convos":3860,"adoption_rate":60.4,"avg_convos":7.0,"return_rate":70.3,"recently_active_pct":59.7,"quadrant":"Broad Adoption, Light Use"},{"bu":"Corporate Legal","org":"Corporate","total_pop":1075,"registered":489,"active":398,"total_convos":4115,"adoption_rate":37.0,"avg_convos":10.3,"return_rate":72.9,"recently_active_pct":58.3,"quadrant":"Power Users, Low Reach"},{"bu":"Corporate Strategy","org":"Corporate","total_pop":926,"registered":597,"active":479,"total_convos":4075,"adoption_rate":51.7,"avg_convos":8.5,"return_rate":70.1,"recently_active_pct":60.5,"quadrant":"Broad Adoption, Light Use"},{"bu":"Downstream Commercial","org":"Downstream","total_pop":1235,"registered":819,"active":651,"total_convos":5657,"adoption_rate":52.7,"avg_convos":8.7,"return_rate":72.5,"recently_active_pct":60.2,"quadrant":"Broad Adoption, Light Use"},{"bu":"Downstream Finance","org":"Downstream","total_pop":1247,"registered":416,"active":340,"total_convos":3696,"adoption_rate":27.3,"avg_convos":10.9,"return_rate":71.8,"recently_active_pct":59.4,"quadrant":"Power Users, Low Reach"},{"bu":"Downstream IT","org":"Downstream","total_pop":1313,"registered":501,"active":406,"total_convos":4196,"adoption_rate":30.9,"avg_convos":10.3,"return_rate":71.4,"recently_active_pct":59.9,"quadrant":"Power Users, Low Reach"},{"bu":"Downstream Operations","org":"Downstream","total_pop":1304,"registered":1043,"active":818,"total_convos":7090,"adoption_rate":62.7,"avg_convos":8.7,"return_rate":71.4,"recently_active_pct":61.7,"quadrant":"Champions"},{"bu":"Downstream Safety","org":"Downstream","total_pop":760,"registered":200,"active":155,"total_convos":1647,"adoption_rate":20.4,"avg_convos":10.6,"return_rate":72.9,"recently_active_pct":56.8,"quadrant":"Needs Activation"},{"bu":"Upstream Engineering","org":"Upstream","total_pop":1366,"registered":781,"active":609,"total_convos":5285,"adoption_rate":44.6,"avg_convos":8.7,"return_rate":71.3,"recently_active_pct":60.8,"quadrant":"Champions"},{"bu":"Upstream Finance","org":"Upstream","total_pop":1183,"registered":408,"active":317,"total_convos":2802,"adoption_rate":26.8,"avg_convos":8.8,"return_rate":71.9,"recently_active_pct":59.6,"quadrant":"Needs Activation"},{"bu":"Upstream HSE","org":"Upstream","total_pop":899,"registered":281,"active":226,"total_convos":2386,"adoption_rate":25.1,"avg_convos":10.6,"return_rate":72.1,"recently_active_pct":58.8,"quadrant":"Power Users, Low Reach"},{"bu":"Upstream IT","org":"Upstream","total_pop":977,"registered":407,"active":328,"total_convos":3335,"adoption_rate":33.6,"avg_convos":10.2,"return_rate":70.4,"recently_active_pct":60.4,"quadrant":"Power Users, Low Reach"},{"bu":"Upstream Operations","org":"Upstream","total_pop":1212,"registered":729,"active":562,"total_convos":5003,"adoption_rate":46.4,"avg_convos":8.9,"return_rate":72.1,"recently_active_pct":60.9,"quadrant":"Champions"}],"matrix_medians":{"adoption_rate":43.4,"avg_convos":9.3},"skills":{"Both":[{"bu":"Corporate Comms","total":3168,"Performance_count":824,"Goal Setting_count":792,"Difficult Conversations_count":697,"Managing Up_count":475,"Personal Issues_count":380,"Performance_pct":26.0,"Goal Setting_pct":25.0,"Difficult Conversations_pct":22.0,"Managing Up_pct":15.0,"Personal Issues_pct":12.0},{"bu":"Corporate Finance","total":4375,"Performance_count":1356,"Goal Setting_count":1006,"Difficult Conversations_count":875,"Managing Up_count":700,"Personal Issues_count":438,"Performance_pct":31.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":20.0,"Managing Up_pct":16.0,"Personal Issues_pct":10.0},{"bu":"Corporate HR","total":3860,"Performance_count":927,"Goal Setting_count":927,"Difficult Conversations_count":733,"Managing Up_count":579,"Personal Issues_count":694,"Performance_pct":24.0,"Goal Setting_pct":24.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":15.0,"Personal Issues_pct":18.0},{"bu":"Corporate Legal","total":4115,"Performance_count":1070,"Goal Setting_count":823,"Difficult Conversations_count":946,"Managing Up_count":741,"Personal Issues_count":535,"Performance_pct":26.0,"Goal Setting_pct":20.0,"Difficult Conversations_pct":23.0,"Managing Up_pct":18.0,"Personal Issues_pct":13.0},{"bu":"Corporate Strategy","total":4075,"Performance_count":978,"Goal Setting_count":1140,"Difficult Conversations_count":773,"Managing Up_count":733,"Personal Issues_count":451,"Performance_pct":24.0,"Goal Setting_pct":28.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":18.0,"Personal Issues_pct":11.0},{"bu":"Downstream Commercial","total":5657,"Performance_count":1470,"Goal Setting_count":1471,"Difficult Conversations_count":1074,"Managing Up_count":905,"Personal Issues_count":737,"Performance_pct":26.0,"Goal Setting_pct":26.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":16.0,"Personal Issues_pct":13.0},{"bu":"Downstream Finance","total":3696,"Performance_count":1183,"Goal Setting_count":813,"Difficult Conversations_count":703,"Managing Up_count":591,"Personal Issues_count":406,"Performance_pct":32.0,"Goal Setting_pct":22.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":16.0,"Personal Issues_pct":11.0},{"bu":"Downstream IT","total":4196,"Performance_count":1091,"Goal Setting_count":965,"Difficult Conversations_count":881,"Managing Up_count":881,"Personal Issues_count":378,"Performance_pct":26.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":21.0,"Managing Up_pct":21.0,"Personal Issues_pct":9.0},{"bu":"Downstream Operations","total":7090,"Performance_count":2198,"Goal Setting_count":1631,"Difficult Conversations_count":1347,"Managing Up_count":1134,"Personal Issues_count":780,"Performance_pct":31.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":16.0,"Personal Issues_pct":11.0},{"bu":"Downstream Safety","total":1647,"Performance_count":412,"Goal Setting_count":379,"Difficult Conversations_count":428,"Managing Up_count":247,"Personal Issues_count":181,"Performance_pct":25.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":26.0,"Managing Up_pct":15.0,"Personal Issues_pct":11.0},{"bu":"Upstream Engineering","total":5285,"Performance_count":1427,"Goal Setting_count":1321,"Difficult Conversations_count":1057,"Managing Up_count":846,"Personal Issues_count":634,"Performance_pct":27.0,"Goal Setting_pct":25.0,"Difficult Conversations_pct":20.0,"Managing Up_pct":16.0,"Personal Issues_pct":12.0},{"bu":"Upstream Finance","total":2802,"Performance_count":896,"Goal Setting_count":644,"Difficult Conversations_count":532,"Managing Up_count":448,"Personal Issues_count":282,"Performance_pct":32.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":16.0,"Personal Issues_pct":10.0},{"bu":"Upstream HSE","total":2386,"Performance_count":596,"Goal Setting_count":548,"Difficult Conversations_count":620,"Managing Up_count":382,"Personal Issues_count":240,"Performance_pct":25.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":26.0,"Managing Up_pct":16.0,"Personal Issues_pct":10.0},{"bu":"Upstream IT","total":3335,"Performance_count":867,"Goal Setting_count":767,"Difficult Conversations_count":767,"Managing Up_count":634,"Personal Issues_count":300,"Performance_pct":26.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":23.0,"Managing Up_pct":19.0,"Personal Issues_pct":9.0},{"bu":"Upstream Operations","total":5003,"Performance_count":1501,"Goal Setting_count":1151,"Difficult Conversations_count":900,"Managing Up_count":800,"Personal Issues_count":651,"Performance_pct":30.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":18.0,"Managing Up_pct":16.0,"Personal Issues_pct":13.0}],"Manager":[{"bu":"Corporate Comms","total":2329,"Performance_count":606,"Goal Setting_count":582,"Difficult Conversations_count":512,"Managing Up_count":349,"Personal Issues_count":280,"Performance_pct":26.0,"Goal Setting_pct":25.0,"Difficult Conversations_pct":22.0,"Managing Up_pct":15.0,"Personal Issues_pct":12.0},{"bu":"Corporate Finance","total":3197,"Performance_count":991,"Goal Setting_count":735,"Difficult Conversations_count":639,"Managing Up_count":511,"Personal Issues_count":320,"Performance_pct":31.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":20.0,"Managing Up_pct":16.0,"Personal Issues_pct":10.0},{"bu":"Corporate HR","total":2824,"Performance_count":678,"Goal Setting_count":678,"Difficult Conversations_count":537,"Managing Up_count":424,"Personal Issues_count":507,"Performance_pct":24.0,"Goal Setting_pct":24.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":15.0,"Personal Issues_pct":18.0},{"bu":"Corporate Legal","total":3060,"Performance_count":795,"Goal Setting_count":612,"Difficult Conversations_count":703,"Managing Up_count":551,"Personal Issues_count":399,"Performance_pct":26.0,"Goal Setting_pct":20.0,"Difficult Conversations_pct":23.0,"Managing Up_pct":18.0,"Personal Issues_pct":13.0},{"bu":"Corporate Strategy","total":2994,"Performance_count":719,"Goal Setting_count":838,"Difficult Conversations_count":569,"Managing Up_count":539,"Personal Issues_count":329,"Performance_pct":24.0,"Goal Setting_pct":28.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":18.0,"Personal Issues_pct":11.0},{"bu":"Downstream Commercial","total":4074,"Performance_count":1059,"Goal Setting_count":1059,"Difficult Conversations_count":774,"Managing Up_count":652,"Personal Issues_count":530,"Performance_pct":26.0,"Goal Setting_pct":26.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":16.0,"Personal Issues_pct":13.0},{"bu":"Downstream Finance","total":2742,"Performance_count":878,"Goal Setting_count":603,"Difficult Conversations_count":521,"Managing Up_count":439,"Personal Issues_count":301,"Performance_pct":32.0,"Goal Setting_pct":22.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":16.0,"Personal Issues_pct":11.0},{"bu":"Downstream IT","total":3102,"Performance_count":806,"Goal Setting_count":713,"Difficult Conversations_count":651,"Managing Up_count":651,"Personal Issues_count":279,"Performance_pct":26.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":21.0,"Managing Up_pct":21.0,"Personal Issues_pct":9.0},{"bu":"Downstream Operations","total":5210,"Performance_count":1615,"Goal Setting_count":1198,"Difficult Conversations_count":990,"Managing Up_count":834,"Personal Issues_count":573,"Performance_pct":31.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":16.0,"Personal Issues_pct":11.0},{"bu":"Downstream Safety","total":1226,"Performance_count":307,"Goal Setting_count":282,"Difficult Conversations_count":319,"Managing Up_count":184,"Personal Issues_count":134,"Performance_pct":25.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":26.0,"Managing Up_pct":15.0,"Personal Issues_pct":11.0},{"bu":"Upstream Engineering","total":3842,"Performance_count":1037,"Goal Setting_count":960,"Difficult Conversations_count":768,"Managing Up_count":615,"Personal Issues_count":461,"Performance_pct":27.0,"Goal Setting_pct":25.0,"Difficult Conversations_pct":20.0,"Managing Up_pct":16.0,"Personal Issues_pct":12.0},{"bu":"Upstream Finance","total":2077,"Performance_count":664,"Goal Setting_count":478,"Difficult Conversations_count":394,"Managing Up_count":332,"Personal Issues_count":208,"Performance_pct":32.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":16.0,"Personal Issues_pct":10.0},{"bu":"Upstream HSE","total":1789,"Performance_count":447,"Goal Setting_count":411,"Difficult Conversations_count":465,"Managing Up_count":286,"Personal Issues_count":179,"Performance_pct":25.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":26.0,"Managing Up_pct":16.0,"Personal Issues_pct":10.0},{"bu":"Upstream IT","total":2467,"Performance_count":642,"Goal Setting_count":568,"Difficult Conversations_count":568,"Managing Up_count":469,"Personal Issues_count":222,"Performance_pct":26.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":23.0,"Managing Up_pct":19.0,"Personal Issues_pct":9.0},{"bu":"Upstream Operations","total":3641,"Performance_count":1093,"Goal Setting_count":837,"Difficult Conversations_count":655,"Managing Up_count":582,"Personal Issues_count":473,"Performance_pct":30.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":18.0,"Managing Up_pct":16.0,"Personal Issues_pct":13.0}],"IC":[{"bu":"Corporate Comms","total":839,"Performance_count":218,"Goal Setting_count":210,"Difficult Conversations_count":185,"Managing Up_count":126,"Personal Issues_count":100,"Performance_pct":26.0,"Goal Setting_pct":25.0,"Difficult Conversations_pct":22.0,"Managing Up_pct":15.0,"Personal Issues_pct":12.0},{"bu":"Corporate Finance","total":1178,"Performance_count":365,"Goal Setting_count":271,"Difficult Conversations_count":236,"Managing Up_count":188,"Personal Issues_count":118,"Performance_pct":31.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":20.0,"Managing Up_pct":16.0,"Personal Issues_pct":10.0},{"bu":"Corporate HR","total":1036,"Performance_count":249,"Goal Setting_count":249,"Difficult Conversations_count":197,"Managing Up_count":155,"Personal Issues_count":186,"Performance_pct":24.0,"Goal Setting_pct":24.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":15.0,"Personal Issues_pct":18.0},{"bu":"Corporate Legal","total":1055,"Performance_count":274,"Goal Setting_count":211,"Difficult Conversations_count":243,"Managing Up_count":190,"Personal Issues_count":137,"Performance_pct":26.0,"Goal Setting_pct":20.0,"Difficult Conversations_pct":23.0,"Managing Up_pct":18.0,"Personal Issues_pct":13.0},{"bu":"Corporate Strategy","total":1081,"Performance_count":260,"Goal Setting_count":302,"Difficult Conversations_count":205,"Managing Up_count":195,"Personal Issues_count":119,"Performance_pct":24.0,"Goal Setting_pct":28.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":18.0,"Personal Issues_pct":11.0},{"bu":"Downstream Commercial","total":1583,"Performance_count":412,"Goal Setting_count":412,"Difficult Conversations_count":301,"Managing Up_count":253,"Personal Issues_count":205,"Performance_pct":26.0,"Goal Setting_pct":26.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":16.0,"Personal Issues_pct":13.0},{"bu":"Downstream Finance","total":954,"Performance_count":305,"Goal Setting_count":210,"Difficult Conversations_count":181,"Managing Up_count":153,"Personal Issues_count":105,"Performance_pct":32.0,"Goal Setting_pct":22.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":16.0,"Personal Issues_pct":11.0},{"bu":"Downstream IT","total":1094,"Performance_count":284,"Goal Setting_count":252,"Difficult Conversations_count":230,"Managing Up_count":230,"Personal Issues_count":98,"Performance_pct":26.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":21.0,"Managing Up_pct":21.0,"Personal Issues_pct":9.0},{"bu":"Downstream Operations","total":1880,"Performance_count":583,"Goal Setting_count":432,"Difficult Conversations_count":357,"Managing Up_count":301,"Personal Issues_count":207,"Performance_pct":31.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":16.0,"Personal Issues_pct":11.0},{"bu":"Downstream Safety","total":421,"Performance_count":105,"Goal Setting_count":97,"Difficult Conversations_count":109,"Managing Up_count":63,"Personal Issues_count":46,"Performance_pct":25.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":26.0,"Managing Up_pct":15.0,"Personal Issues_pct":11.0},{"bu":"Upstream Engineering","total":1443,"Performance_count":390,"Goal Setting_count":361,"Difficult Conversations_count":289,"Managing Up_count":231,"Personal Issues_count":173,"Performance_pct":27.0,"Goal Setting_pct":25.0,"Difficult Conversations_pct":20.0,"Managing Up_pct":16.0,"Personal Issues_pct":12.0},{"bu":"Upstream Finance","total":725,"Performance_count":232,"Goal Setting_count":167,"Difficult Conversations_count":138,"Managing Up_count":116,"Personal Issues_count":72,"Performance_pct":32.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":19.0,"Managing Up_pct":16.0,"Personal Issues_pct":10.0},{"bu":"Upstream HSE","total":597,"Performance_count":149,"Goal Setting_count":137,"Difficult Conversations_count":155,"Managing Up_count":96,"Personal Issues_count":60,"Performance_pct":25.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":26.0,"Managing Up_pct":16.0,"Personal Issues_pct":10.0},{"bu":"Upstream IT","total":868,"Performance_count":226,"Goal Setting_count":200,"Difficult Conversations_count":200,"Managing Up_count":165,"Personal Issues_count":78,"Performance_pct":26.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":23.0,"Managing Up_pct":19.0,"Personal Issues_pct":9.0},{"bu":"Upstream Operations","total":1362,"Performance_count":409,"Goal Setting_count":313,"Difficult Conversations_count":245,"Managing Up_count":218,"Personal Issues_count":177,"Performance_pct":30.0,"Goal Setting_pct":23.0,"Difficult Conversations_pct":18.0,"Managing Up_pct":16.0,"Personal Issues_pct":13.0}]},"overall_skills":{"Both":[{"topic":"Performance","count":16993,"pct":28.0},{"topic":"Goal Setting","count":13958,"pct":23.0},{"topic":"Difficult Conversations","count":12138,"pct":20.0},{"topic":"Managing Up","count":9710,"pct":16.0},{"topic":"Personal Issues","count":7890,"pct":13.0}],"Manager":[{"topic":"Performance","count":12265,"pct":28.0},{"topic":"Goal Setting","count":10064,"pct":23.0},{"topic":"Difficult Conversations","count":8761,"pct":20.0},{"topic":"Managing Up","count":7009,"pct":16.0},{"topic":"Personal Issues","count":5704,"pct":13.0}],"IC":[{"topic":"Performance","count":4728,"pct":28.0},{"topic":"Goal Setting","count":3894,"pct":23.0},{"topic":"Difficult Conversations","count":3377,"pct":20.0},{"topic":"Managing Up","count":2702,"pct":16.0},{"topic":"Personal Issues","count":2186,"pct":13.0}]},"key_takeaways":["Nadia has reached <strong>8,376 registered users</strong> across Chevron Mock\u2019s population of 15,093 \u2014 a <strong>55.5% registration rate</strong>. Of those, <strong>6,643 (79.3%)</strong> have had at least one coaching conversation.","The peak activation month was <strong>February 2026 (3,141 total active users)</strong>, driven by 817 new and 2,324 returning users \u2014 a strong signal of sustained re-engagement.","Users with both Teams + Calendar integrations average <strong>14.5 conversations vs. 5.8 for users with neither</strong> \u2014 a <strong>2.5x multiplier</strong>. Integration adoption remains a key lever for deepening engagement.","<strong>Downstream Operations</strong> leads all BUs with a <strong>62.7% adoption rate</strong>, while <strong>Downstream Safety</strong> presents the largest activation opportunity at 20.4%.","Overall return rate stands at <strong>71.7%</strong> \u2014 nearly 3 out of 4 active users come back for more than one conversation, signaling strong platform stickiness."],"topics":["Performance","Goal Setting","Difficult Conversations","Managing Up","Personal Issues"],"bus":["Corporate Comms","Corporate Finance","Corporate HR","Corporate Legal","Corporate Strategy","Downstream Commercial","Downstream Finance","Downstream IT","Downstream Operations","Downstream Safety","Upstream Engineering","Upstream Finance","Upstream HSE","Upstream IT","Upstream Operations"],"total_pop":15093};
+
+/* ── DEFAULTS ── */
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#8A96A8';
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+Chart.defaults.plugins.legend.labels.padding  = 16;
+
+/* ── CHART INSTANCES ── */
+let monthlyChartInst = null, matrixChartInst = null;
+let skMgrChartInst = null, skIcChartInst = null;
+
+/* ── STATE ── */
+let ovRole   = 'Both', ovStatus = 'All';
+let buRole   = 'Both', buStatus = 'All';
+let skRole   = 'Both', skStatus = 'All';
+let buSortKey = 'adoption_rate', buSortDir = -1;
+
+/* ── HELPERS ── */
+const fmt = n => n >= 1000 ? (n/1000).toFixed(n%1000===0?0:1)+'k' : n.toLocaleString();
+const fmtPct = p => p+'%';
+const fmtMonth = m => {
+  const [y,mo] = m.split('-');
+  return new Date(+y,+mo-1,1).toLocaleString('default',{month:'short',year:'2-digit'});
+};
+
+/* ── POPULATE BU DROPDOWN ── */
+function initBuDropdown() {
+  const sel = document.getElementById('ov-bu-filter');
+  ['Corporate','Downstream','Upstream'].forEach(org => {
+    const grp = document.createElement('optgroup');
+    grp.label = org;
+    D.bus.filter(b => b.startsWith(org)).forEach(b => {
+      const opt = document.createElement('option');
+      opt.value = b; opt.textContent = b;
+      grp.appendChild(opt);
+    });
+    sel.appendChild(grp);
+  });
+}
+
+/* ── KPI STATUS SCALING ── */
+function scaleKpi(base, status) {
+  const k = D.kpis[ovRole] || D.kpis['Both'];
+  if (status === 'All')    return k;
+  if (status === 'Active') return {...k, total_registered: k.total_active, reg_pct_pop: k.active_pct_pop};
+  if (status === 'Return') return {...k,
+    total_registered: k.return_users, reg_pct_pop: +(k.return_users/D.total_pop*100).toFixed(1),
+    total_active:     k.return_users, active_pct_pop: +(k.return_users/D.total_pop*100).toFixed(1),
+    total_convos: Math.round(k.total_convos * k.return_users / k.total_active) };
+  if (status === 'Recent') return {...k,
+    total_registered: k.recently_active, reg_pct_pop: +(k.recently_active/D.total_pop*100).toFixed(1),
+    total_active:     k.recently_active, active_pct_pop: +(k.recently_active/D.total_pop*100).toFixed(1)};
+  return k;
+}
+
+/* ── UPDATE OVERVIEW ── */
+function updateOverview() {
+  const buFilter = document.getElementById('ov-bu-filter').value;
+  const k = scaleKpi(null, ovStatus);
+  document.getElementById('kpi-reg').textContent      = fmt(k.total_registered);
+  document.getElementById('kpi-reg-sub').textContent  = k.reg_pct_pop+'% of population';
+  document.getElementById('kpi-active').textContent   = fmt(k.total_active);
+  document.getElementById('kpi-active-sub').textContent = k.active_pct_pop+'% of population';
+  document.getElementById('kpi-convos').textContent   = fmt(k.total_convos);
+  document.getElementById('kpi-return').textContent   = fmt(k.return_users);
+  document.getElementById('kpi-return-sub').textContent = k.return_rate+'% return rate';
+  document.getElementById('kpi-recent').textContent   = fmt(k.recently_active);
+  document.getElementById('kpi-recent-sub').textContent= k.recent_pct_active+'% of active users';
+
+  // Monthly chart data
+  let md = D.monthly[ovRole] || D.monthly['Both'];
+  if (buFilter !== 'All') {
+    // Use per-BU totals (just total active, shown as single blue bar)
+    const buMonthly = D.monthly_by_bu ? D.monthly_by_bu[buFilter] || [] : [];
+    const labels   = buMonthly.map(r => fmtMonth(r.month));
+    const totals   = buMonthly.map(r => r.count);
+    if (monthlyChartInst) monthlyChartInst.destroy();
+    const ctx = document.getElementById('monthly-chart').getContext('2d');
+    monthlyChartInst = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{label:'Active Users',data:totals,backgroundColor:'#6228BB',borderRadius:4}]
+      },
+      options: chartOpts(false)
+    });
+    return;
+  }
+  // Full 3-series view
+  const labels  = md.map(r => fmtMonth(r.month));
+  const newA    = md.map(r => r.new_active);
+  const retA    = md.map(r => r.returning_active);
+  const newReg  = md.map(r => r.new_registrations);
+
+  if (monthlyChartInst) monthlyChartInst.destroy();
+  const ctx = document.getElementById('monthly-chart').getContext('2d');
+  monthlyChartInst = new Chart(ctx, {
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'New Active Users',    data:newA,   backgroundColor:'#4CA8FF',borderRadius:4,stack:'a'},
+      {label:'Returning Active Users',data:retA, backgroundColor:'#1A4EC8',borderRadius:4,stack:'a'},
+      {label:'New Registrations',  data:newReg, backgroundColor:'#34C98C',borderRadius:4,stack:'b'},
+    ]},
+    options:{
+      ...chartOpts(true),
+      scales:{
+        x:{stacked:true,grid:{display:false},ticks:{font:{size:11}}},
+        y:{stacked:true,grid:{color:'#F0F0F5'},beginAtZero:true,
+          ticks:{font:{size:11},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v},
+          title:{display:true,text:'Users',font:{size:11}}},
+      }
+    }
+  });
+}
+
+function chartOpts(legend) {
+  return {
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:legend,position:'bottom'},
+      tooltip:{backgroundColor:'#1A2744',titleColor:'#fff',bodyColor:'#C8D0DC',padding:10}
+    },
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:11}}},
+      y:{grid:{color:'#F0F0F5'},beginAtZero:true,ticks:{font:{size:11},callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}}
+    }
+  };
+}
+
+/* ── KEY TAKEAWAYS ── */
+function renderTakeaways() {
+  const list = document.getElementById('takeaways-list');
+  list.innerHTML = D.key_takeaways.map(t =>
+    `<div class="takeaway-item">${t}</div>`
+  ).join('');
+}
+
+/* ── BU STATUS SCALING ── */
+function applyBuStatus(row) {
+  if (buStatus === 'All') return {...row};
+  let scale;
+  if (buStatus === 'Active') scale = 1.0; // active users = the active count already
+  else if (buStatus === 'Return') scale = row.return_rate / 100;
+  else if (buStatus === 'Recent') scale = row.recently_active_pct / 100;
+  else scale = 1.0;
+
+  const newActive     = Math.round(row.active * scale);
+  const newRegistered = Math.round(row.registered * scale);
+  const newAdoption   = +(newActive / row.total_pop * 100).toFixed(1);
+  // Return / Recently Active users tend to be more engaged → bump avg convos slightly
+  const convoMult     = buStatus === 'Return' ? 1.3 : buStatus === 'Recent' ? 1.1 : 1.0;
+  const newConvos     = +(row.avg_convos * convoMult).toFixed(1);
+  return {
+    ...row,
+    active: newActive, registered: newRegistered,
+    adoption_rate: newAdoption, avg_convos: newConvos
+  };
+}
+
+/* ── ADOPTION MATRIX (dynamic, rebuilt on every filter change) ── */
+function rebuildMatrix(scaledRows) {
+  const QC  = {Champions:'#00A878','Power Users, Low Reach':'#F5A623','Broad Adoption, Light Use':'#0073E6','Needs Activation':'#E34850'};
+  const QBG = {Champions:'rgba(0,168,120,0.15)','Power Users, Low Reach':'rgba(245,166,35,0.15)','Broad Adoption, Light Use':'rgba(0,115,230,0.15)','Needs Activation':'rgba(227,72,80,0.15)'};
+
+  // Dynamic medians from the currently visible rows
+  const sortedA = [...scaledRows].map(r=>r.adoption_rate).sort((a,b)=>a-b);
+  const sortedC = [...scaledRows].map(r=>r.avg_convos).sort((a,b)=>a-b);
+  const mid = i => i.length === 0 ? 0 : i[Math.floor(i.length/2)];
+  const med_a = mid(sortedA);
+  const med_c = mid(sortedC);
+
+  // Assign quadrants
+  const withQ = scaledRows.map(r=>({
+    ...r,
+    quadrant: r.adoption_rate >= med_a && r.avg_convos >= med_c ? 'Champions'
+             : r.adoption_rate <  med_a && r.avg_convos >= med_c ? 'Power Users, Low Reach'
+             : r.adoption_rate >= med_a && r.avg_convos <  med_c ? 'Broad Adoption, Light Use'
+             :                                                      'Needs Activation'
+  }));
+
+  const byQ = {};
+  withQ.forEach(r=>{ if (!byQ[r.quadrant]) byQ[r.quadrant]=[]; byQ[r.quadrant].push(r); });
+
+  const datasets = Object.entries(byQ).map(([q,rows])=>({
+    label: q,
+    data: rows.map(r=>({x:r.adoption_rate,y:r.avg_convos,r:Math.max(4,Math.sqrt(r.active)*0.7),bu:r.bu})),
+    backgroundColor: QBG[q],
+    borderColor: QC[q],
+    borderWidth: 1.5,
+  }));
+
+  document.getElementById('matrix-sub-text').textContent =
+    `BUs with 100+ users. Quadrants based on current filter medians: ${med_a}% adoption rate, ${med_c} avg conversations. Bubble size proportional to active users.`;
+
+  if (matrixChartInst) matrixChartInst.destroy();
+  const ctx = document.getElementById('matrix-chart').getContext('2d');
+  matrixChartInst = new Chart(ctx,{
+    type:'bubble',
+    data:{datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true,position:'bottom'},
+        tooltip:{
+          backgroundColor:'#1A2744',
+          callbacks:{
+            title:items=>[items[0].raw.bu],
+            label:item=>[`Adoption: ${item.raw.x}%`,`Avg Convos: ${item.raw.y}`]
+          }
+        }
+      },
+      scales:{
+        x:{grid:{color:'#F0F0F5'},title:{display:true,text:'Adoption Rate (%)',font:{size:12}},
+          ticks:{callback:v=>v+'%'}},
+        y:{grid:{color:'#F0F0F5'},title:{display:true,text:'Avg Conversations',font:{size:12}},
+          beginAtZero:true},
+      },
+      annotation:{
+        drawTime:'beforeDraw',
+        annotations:{
+          vLine:{type:'line',xMin:med_a,xMax:med_a,borderColor:'#D8DCE8',borderWidth:1.5,borderDash:[4,4]},
+          hLine:{type:'line',yMin:med_c,yMax:med_c,borderColor:'#D8DCE8',borderWidth:1.5,borderDash:[4,4]},
+        }
+      }
+    }
+  });
+
+  // Quadrant legend boxes
+  const quadDefs = [
+    {key:'Champions',cls:'champion',tip:'Scale what works — use these BUs as internal case studies and peer advocates.'},
+    {key:'Power Users, Low Reach',cls:'power',tip:'Leverage super users as ambassadors to drive broader awareness and adoption.'},
+    {key:'Broad Adoption, Light Use',cls:'broad',tip:'Deepen engagement through integration nudges and goal-setting prompts.'},
+    {key:'Needs Activation',cls:'needs',tip:'Targeted onboarding campaigns and leadership sponsorship to spark initial adoption.'},
+  ];
+  document.getElementById('quadrant-boxes').innerHTML = quadDefs.map(qd=>{
+    const bus = (byQ[qd.key]||[]).map(r=>r.bu).join(', ');
+    return `<div class="quad-box ${qd.cls}">
+      <div class="quad-head ${qd.cls}">${qd.key}</div>
+      <div class="quad-body">${bus||'—'}</div>
+      <div class="quad-tip">${qd.tip}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── BU TABLE (applies status scaling + always rebuilds matrix) ── */
+function renderBuTable() {
+  const rawRows = D.bu_table[buRole] || D.bu_table['Both'];
+  // Apply status scaling to each row
+  const scaledRows = rawRows.map(r => applyBuStatus(r));
+
+  // Sort
+  scaledRows.sort((a,b) => buSortDir * ((a[buSortKey]||0) - (b[buSortKey]||0)));
+
+  const orgBadge = o => {
+    const cls = {Corporate:'b-corporate',Downstream:'b-downstream',Upstream:'b-upstream'};
+    return `<span class="badge ${cls[o]||''}">${o}</span>`;
+  };
+  const pctBar = (v,max=100) => `<div class="pct-bar-wrap">
+    <div class="pct-bar"><div class="pct-fill" style="width:${Math.min(v/max*100,100)}%"></div></div>
+    <span style="font-size:12px;font-weight:600;color:#6228BB">${v}%</span>
+  </div>`;
+
+  document.getElementById('bu-tbody').innerHTML = scaledRows.map(r => `
+    <tr>
+      <td style="font-weight:600">${r.bu}</td>
+      <td>${orgBadge(r.org)}</td>
+      <td>${r.total_pop.toLocaleString()}</td>
+      <td>${r.registered.toLocaleString()}</td>
+      <td>${r.active.toLocaleString()}</td>
+      <td>${pctBar(r.adoption_rate,80)}</td>
+      <td style="font-weight:600">${r.avg_convos}</td>
+      <td>${r.return_rate}%</td>
+      <td>${r.recently_active_pct}%</td>
+    </tr>`).join('');
+
+  // Update sort headers
+  document.querySelectorAll('#bu-table thead th').forEach(th=>{
+    th.classList.remove('sort-asc','sort-desc');
+    const key = th.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+    if (key===buSortKey) th.classList.add(buSortDir===1?'sort-asc':'sort-desc');
+  });
+
+  // Always rebuild matrix with the same scaled rows (unsorted order is fine)
+  const matrixRows = rawRows.map(r => applyBuStatus(r));
+  rebuildMatrix(matrixRows);
+}
+
+function sortBuTable(key) {
+  if (buSortKey===key) buSortDir*=-1; else {buSortKey=key;buSortDir=-1;}
+  renderBuTable();
+}
+
+/* ── SKILLS STATUS SCALING ── */
+function skScaleFactor() {
+  // Derive a scale factor relative to total_active for the current role segment
+  const kSeg = skRole === 'Both' ? 'Both' : skRole;
+  const k = D.kpis[kSeg] || D.kpis['Both'];
+  if (skStatus === 'All' || skStatus === 'Active') return 1.0;
+  if (skStatus === 'Return') return k.return_users / k.total_active;
+  if (skStatus === 'Recent') return k.recently_active / k.total_active;
+  return 1.0;
+}
+
+/* ── SKILLS RENDERING (fully reactive) ── */
+function renderSkills() {
+  const seg    = skRole === 'Both' ? 'Both' : skRole;
+  const scale  = skScaleFactor();
+  const topics = D.topics;
+  const skColors = ['#8B42D4','#5228B5','#3D178A','#6B40BE','#9B5EE0'];
+
+  // Scale overall distribution
+  const rawOverall = D.overall_skills[seg] || D.overall_skills['Both'];
+  const scaledCounts = rawOverall.map(t => Math.round(t.count * scale));
+  const totalScaled  = scaledCounts.reduce((s,c)=>s+c, 0);
+  const overall = rawOverall.map((t,i)=>({
+    topic: t.topic,
+    count: scaledCounts[i],
+    pct:   totalScaled > 0 ? +(scaledCounts[i]/totalScaled*100).toFixed(1) : 0
+  }));
+
+  // Distribution bars
+  const maxPct = Math.max(...overall.map(t=>t.pct), 1);
+  document.getElementById('skills-dist-bars').innerHTML = `<div class="skill-dist-row">`+
+    overall.map((t,i)=>`<div class="skill-bar-item">
+      <span class="skill-lbl">${t.topic}</span>
+      <div class="skill-bar-outer"><div class="skill-bar-inner" style="width:${(t.pct/maxPct*100).toFixed(1)}%;background:${skColors[i]}"></div></div>
+      <span class="skill-pct">${t.pct}%</span>
+      <span class="skill-count">${t.count.toLocaleString()}</span>
+    </div>`).join('')+`</div>`;
+
+  // Skills by BU table — scale counts
+  const rawRows = D.skills[seg] || D.skills['Both'];
+  document.getElementById('skills-tbody').innerHTML = rawRows.map(r=>{
+    const orgStr = r.bu.split(' ')[0];
+    const orgCls = {Corporate:'b-corporate',Downstream:'b-downstream',Upstream:'b-upstream'};
+    const scaledTotal = Math.round(r.total * scale);
+    return `<tr>
+      <td style="font-weight:600">${r.bu}</td>
+      <td><span class="badge ${orgCls[orgStr]||''}">${orgStr}</span></td>
+      ${topics.map(t=>{
+        const sc = Math.round(r[t+'_count'] * scale);
+        return `<td class="topic-val">
+          <span class="tc">${sc.toLocaleString()}</span>
+          <span class="tp"> (${r[t+'_pct']}%)</span>
+        </td>`;
+      }).join('')}
+      <td style="font-weight:600">${scaledTotal.toLocaleString()}</td>
+    </tr>`;
+  }).join('');
+
+  // Always rebuild donut charts with current scaled data
+  rebuildSkillCharts(overall);
+}
+
+function rebuildSkillCharts(overall) {
+  const topics = D.topics;
+  const pal    = ['#8B42D4','#5228B5','#3D178A','#6B40BE','#9B5EE0'];
+  const counts = overall.map(t=>t.count);
+
+  // For the two donuts: Manager vs IC — but when filtered to a specific role,
+  // show the filtered data in both (left = current seg, right = same)
+  const seg    = skRole === 'Both' ? 'Both' : skRole;
+  const scale  = skScaleFactor();
+
+  const mgrRaw = D.overall_skills['Manager'] || D.overall_skills['Both'];
+  const icRaw  = D.overall_skills['IC']      || D.overall_skills['Both'];
+  const mgrData = mgrRaw.map(t=>Math.round(t.count * (skRole==='IC' ? scale : (skRole==='Both'?1:scale))));
+  const icData  = icRaw.map (t=>Math.round(t.count * (skRole==='Manager' ? scale : (skRole==='Both'?1:scale))));
+
+  const doughnutOpts = {
+    responsive:true,maintainAspectRatio:false,cutout:'60%',
+    plugins:{
+      legend:{position:'right',labels:{font:{size:11},boxWidth:12}},
+      tooltip:{backgroundColor:'#1A2744',callbacks:{label:c=>' '+c.label+': '+c.parsed.toLocaleString()}}
+    }
+  };
+
+  if (skMgrChartInst) skMgrChartInst.destroy();
+  skMgrChartInst = new Chart(document.getElementById('skills-mgr-chart').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:topics,datasets:[{data:mgrData,backgroundColor:pal,borderWidth:2,borderColor:'#fff',hoverOffset:6}]},
+    options: doughnutOpts
+  });
+
+  if (skIcChartInst) skIcChartInst.destroy();
+  skIcChartInst = new Chart(document.getElementById('skills-ic-chart').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:topics,datasets:[{data:icData,backgroundColor:pal,borderWidth:2,borderColor:'#fff',hoverOffset:6}]},
+    options: doughnutOpts
+  });
+}
+
+/* ── FILTER HANDLERS ── */
+function setOvRole(v,el){ovRole=v;document.querySelectorAll('#ov-role-pills .pill').forEach(b=>b.classList.remove('active'));el.classList.add('active');updateOverview();}
+function setOvStatus(v,el){ovStatus=v;document.querySelectorAll('#ov-status-pills .pill').forEach(b=>b.classList.remove('active'));el.classList.add('active');updateOverview();}
+function setBuRole(v,el){buRole=v;document.querySelectorAll('#bu-role-pills .pill').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderBuTable();}
+function setBuStatus(v,el){buStatus=v;document.querySelectorAll('#bu-status-pills .pill').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderBuTable();}
+function setSkRole(v,el){skRole=v;document.querySelectorAll('#sk-role-pills .pill').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderSkills();}
+function setSkStatus(v,el){skStatus=v;document.querySelectorAll('#sk-status-pills .pill').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderSkills();}
+
+/* ── PAGE NAV ── */
+const PAGE_NAMES = {overview:'Engagement Overview',bu:'BU Analysis',skills:'Skills Analysis'};
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('topbar-title').textContent = PAGE_NAMES[name]||name;
+  // Always re-render on nav (no one-time flags)
+  if (name==='bu')     renderBuTable();
+  if (name==='skills') renderSkills();
+}
+
+/* ── INIT ── */
+initBuDropdown();
+updateOverview();
+renderTakeaways();
+renderBuTable();
+renderSkills();
+</script>
+</body>
+</html>
