@@ -81,8 +81,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:linear-gradient(135deg,
   background:#fff;color:#5A6479;font-size:12px;font-weight:500;
   cursor:pointer;transition:all .13s;white-space:nowrap;
 }
-.pill:hover{border-color:#6228BB;color:#6228BB}
-.pill.active{background:#6228BB;border-color:#6228BB;color:#fff;font-weight:600}
+.pill:hover{border-color:#fff;color:#333;background:#fff}
+.pill.active{background:#fff;border-color:#fff;color:#6228BB;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.18)}
 .f-divider{width:1px;height:20px;background:rgba(255,255,255,0.3)}
 
 /* ── KPI TILES ── */
@@ -521,25 +521,25 @@ function updateOverview() {
   document.getElementById('kpi-recent').textContent   = fmt(k.recently_active);
   document.getElementById('kpi-recent-sub').textContent= k.recent_pct_active+'% of active users';
 
-  // Monthly chart data
-  let md = D.monthly[ovRole] || D.monthly['Both'];
+  // When a specific BU is selected, override KPIs with that BU's row data
   if (buFilter !== 'All') {
-    // Use per-BU totals (just total active, shown as single blue bar)
-    const buMonthly = D.monthly_by_bu ? D.monthly_by_bu[buFilter] || [] : [];
-    const labels   = buMonthly.map(r => fmtMonth(r.month));
-    const totals   = buMonthly.map(r => r.count);
-    if (monthlyChartInst) monthlyChartInst.destroy();
-    const ctx = document.getElementById('monthly-chart').getContext('2d');
-    monthlyChartInst = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{label:'Active Users',data:totals,backgroundColor:'#6228BB',borderRadius:4}]
-      },
-      options: chartOpts(false)
-    });
-    return;
+    const buRows = D.bu_table[ovRole] || D.bu_table['Both'];
+    const buRow  = buRows.find(r => r.bu === buFilter);
+    if (buRow) {
+      document.getElementById('kpi-reg').textContent         = fmt(buRow.registered);
+      document.getElementById('kpi-reg-sub').textContent     = buRow.adoption_rate + '% adoption rate';
+      document.getElementById('kpi-active').textContent      = fmt(buRow.active);
+      document.getElementById('kpi-active-sub').textContent  = (buRow.active/buRow.total_pop*100).toFixed(1)+'% of population';
+      document.getElementById('kpi-convos').textContent      = fmt(buRow.total_convos);
+      document.getElementById('kpi-return').textContent      = fmt(Math.round(buRow.active * buRow.return_rate / 100));
+      document.getElementById('kpi-return-sub').textContent  = buRow.return_rate + '% return rate';
+      document.getElementById('kpi-recent').textContent      = fmt(Math.round(buRow.active * buRow.recently_active_pct / 100));
+      document.getElementById('kpi-recent-sub').textContent  = buRow.recently_active_pct + '% of active users';
+    }
   }
+
+  // Monthly chart data (always use org-level monthly; no per-BU monthly data available)
+  let md = D.monthly[ovRole] || D.monthly['Both'];
   // Full 3-series view
   const labels  = md.map(r => fmtMonth(r.month));
   const newA    = md.map(r => r.new_active);
