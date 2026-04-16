@@ -8,12 +8,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',system-ui,sans-serif;background:#df217e;color:#1A2744;display:flex;min-height:100vh}
+html{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:linear-gradient(135deg,#1a08d4 0%,#6b1dd6 45%,#e8006a 100%);background-attachment:fixed;color:#1A2744;display:flex;min-height:100vh}
 
 /* ── SIDEBAR ── */
 .sidebar{
   width:220px;min-height:100vh;flex-shrink:0;
-  background:linear-gradient(165deg,#8B42D4 0%,#6228BB 40%,#3D178A 100%);
+  background:rgba(0,0,0,0.18);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-right:1px solid rgba(255,255,255,0.12);
   display:flex;flex-direction:column;
   position:fixed;top:0;left:0;bottom:0;z-index:200;
 }
@@ -200,52 +201,6 @@ tbody td.topic-val .tp{color:#9AA4B5;font-size:10.5px}
 </style>
 </head>
 <body>
-<!-- ── PASSWORD GATE ── -->
-<div id="pw-gate" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(165deg,#8B42D4 0%,#6228BB 40%,#3D178A 100%);display:flex;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:16px;padding:40px 44px;width:340px;box-shadow:0 24px 60px rgba(0,0,0,0.25);text-align:center">
-    <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#8B42D4,#6228BB);margin:0 auto 20px;display:flex;align-items:center;justify-content:center">
-      <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-    </div>
-    <h2 style="font-size:18px;font-weight:700;color:#1A2744;margin-bottom:6px">Protected Dashboard</h2>
-    <p style="font-size:13px;color:#9AA4B5;margin-bottom:24px">Enter the password to continue</p>
-    <input id="pw-input" type="password" placeholder="Password" autocomplete="current-password"
-      style="width:100%;padding:11px 14px;border:1.5px solid #E0E6F0;border-radius:8px;font-size:14px;font-family:inherit;color:#1A2744;outline:none;margin-bottom:10px;transition:border .15s"
-      onfocus="this.style.borderColor='#6228BB'" onblur="this.style.borderColor='#E0E6F0'"
-      onkeydown="if(event.key==='Enter')checkPw()"/>
-    <div id="pw-error" style="font-size:12px;color:#E53E3E;margin-bottom:8px;min-height:18px"></div>
-    <button onclick="checkPw()"
-      style="width:100%;padding:12px;background:linear-gradient(135deg,#8B42D4,#6228BB);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;letter-spacing:0.2px">
-      Unlock
-    </button>
-  </div>
-</div>
-<script>
-(function(){
-  // SHA-256 hash of "insights"
-  const HASH = '7f1fe30ef252bf75fab0c9680c7bcfff648154165afe718155091051255a0a99';
-  async function sha256(str){
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-  }
-  async function checkPw(){
-    const val = document.getElementById('pw-input').value;
-    const hash = await sha256(val);
-    if(hash === HASH){
-      sessionStorage.setItem('pgAuth','1');
-      document.getElementById('pw-gate').style.display='none';
-    } else {
-      const err = document.getElementById('pw-error');
-      err.textContent = 'Incorrect password. Please try again.';
-      document.getElementById('pw-input').value='';
-      document.getElementById('pw-input').focus();
-    }
-  }
-  window.checkPw = checkPw;
-  if(sessionStorage.getItem('pgAuth') !== '1'){
-    document.getElementById('pw-gate').style.display='flex';
-  }
-})();
-</script>
 
 <!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
